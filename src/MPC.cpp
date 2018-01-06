@@ -6,14 +6,14 @@
 using CppAD::AD;
 
 // TODO: Set the timestep length and duration
-size_t N = 10;
+size_t N = 20;
 double dt = 0.05;
 
 // set vehicle front length
 const double Lf = 2.67;
 
 // set reference velocity
-double ref_v = 80;
+double ref_v = 60*0.44704;
 
 // establish when one variable starts and another ends
 size_t x_start = 0;
@@ -43,20 +43,20 @@ class FG_eval {
 
 	// Reference State Cost
 	for(unsigned int i=0; i<N; i++) {
-		fg[0] += CppAD::pow(vars[cte_start+i],2);
-	    fg[0] += CppAD::pow(vars[epsi_start+i],2);
+		fg[0] += 2.*CppAD::pow(vars[cte_start+i],2);
+	    fg[0] += 2.*CppAD::pow(vars[epsi_start+i],2);
 	    fg[0] += CppAD::pow(vars[v_start+i]-ref_v,2);
 	}
 
 	// Minimize the use of actuators.
 	for(unsigned int t = 0; t < N - 1; t++) {
-	   	fg[0] += CppAD::pow(vars[delta_start + t], 2);
+	   	fg[0] += 10.*CppAD::pow(vars[delta_start + t], 2);
 	   	fg[0] += CppAD::pow(vars[a_start + t], 2);
 	}
 
 	// Minimize the value gap between sequential actuations.
 	for(unsigned int t = 0; t < N - 2; t++) {
-	  	fg[0] += 500.*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+	  	fg[0] += 50000.*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
 	  	fg[0] += 500.*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
 	}
 
@@ -106,7 +106,7 @@ class FG_eval {
         fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
         fg[1 + psi_start + t] = psi1 - (psi0 - v0 / Lf * delta0 * dt);
         fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
-        fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+        fg[1 + cte_start + t] = cte1 - ((y0 - f0) + (v0 * CppAD::sin(epsi0) * dt));
         fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);
     }
   }

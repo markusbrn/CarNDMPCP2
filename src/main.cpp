@@ -96,12 +96,14 @@ int main() {
           while(psi > M_PI) psi-=2*M_PI;
           while(psi <-M_PI) psi+=2*M_PI;
           double v = j[1]["speed"];
+          v *= 0.44704;
           double delta = j[1]["steering_angle"];
+          double throttle = j[1]["throttle"];
 
           // account for 50ms measurement delay
           // found by experiment; trajectory in simulator
           // is much more stable with the delay
-          double dtd = 0.05;
+          double dtd = 0.1;
           double pxd = px + v*cos(psi)*dtd;
           double pyd = py + v*sin(psi)*dtd;
           double psid = psi - v/Lf*delta*dtd;
@@ -121,10 +123,10 @@ int main() {
           auto coeffs = polyfit(xvals,yvals,2);
 
           // propagate measurement for 100ms to account for output delay
-          double dt = 0.05;
+          double dt = 0.1;
           double px_mpc = v*dt;
-          double psi_mpc = 0.;
-          double v_mpc = v + mpc.throttle_value*dt;
+          double psi_mpc = -v/Lf*delta*dt;
+          double v_mpc = v + throttle*dt;
           // calculate the cross track error
           double cte_mpc = polyeval(coeffs, px_mpc);
           // calculate the orientation error
