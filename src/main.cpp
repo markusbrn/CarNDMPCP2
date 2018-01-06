@@ -128,7 +128,7 @@ int main() {
           double psi_mpc = -v/Lf*delta*dt;
           double v_mpc = v + throttle*dt;
           // calculate the cross track error
-          double cte_mpc = polyeval(coeffs, px_mpc);
+          double cte_mpc = -polyeval(coeffs, px_mpc);
           // calculate the orientation error
           double epsi_mpc = - atan(coeffs[1] + 2*coeffs[2]*px_mpc);
 
